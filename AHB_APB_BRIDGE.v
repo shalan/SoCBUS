@@ -1,8 +1,8 @@
 `timescale                  1ns/1ps
 `default_nettype            none
 
-`include "../rtl/ahb_util.vh"
-`include "../rtl/apb_util.vh"
+`include "../include/ahb_util.vh"
+`include "../include/apb_util.vh"
 /*
     AHB lite to APB Bridge
     SLOW_PCLK:
