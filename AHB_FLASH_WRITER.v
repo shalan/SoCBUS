@@ -15,10 +15,10 @@
 	limitations under the License.
 */
 
-`timescale                  1ns/1ps
-`default_nettype            none
+`timescale              1ns/1ps
+`default_nettype        none
 
-`include "./include/ahb_util.vh"
+`include                "./include/ahb_util.vh"
 /*
     A bit bangging flash writer with AHB slave interface
     Registers:

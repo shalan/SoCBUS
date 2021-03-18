@@ -20,10 +20,10 @@
 */
 //`define                     VERIFY
 
-`timescale                  1ns/1ps
-`default_nettype            none
+`timescale              1ns/1ps
+`default_nettype        none
 
-`include "./include/ahb_util.vh"
+`include                "./include/ahb_util.vh"
 
 `define     SYNC_BEGIN(r, v)  always @ (posedge HCLK or negedge HRESETn) if(!HRESETn) r <= v; else begin
 `define     SYNC_END          end
