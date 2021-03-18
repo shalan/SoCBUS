@@ -53,3 +53,4 @@ dkms.conf
 
 #macOS
 .DS_Store
+SoCBUS.code-workspace
