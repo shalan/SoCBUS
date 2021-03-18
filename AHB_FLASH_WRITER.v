@@ -1,9 +1,5 @@
 /*
- 	 _   _  __ ___     __   _________  
-	| \ | |/ _(_) \   / /__|___ /___ \ 
-	|  \| | |_| |\ \ / / _ \ |_ \ __) |
-	| |\  |  _| | \ V /  __/___) / __/ 
-	|_| \_|_| |_|  \_/ \___|____/_____|
+
 	Copyright 2020 Mohamed Shalan
 	
 	Licensed under the Apache License, Version 2.0 (the "License"); 
