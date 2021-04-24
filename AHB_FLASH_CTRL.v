@@ -19,6 +19,10 @@
     Don't change the LINE_SIZE
 */
 
+
+`timescale              1ns/1ps
+`default_nettype        none
+
 module AHB_FLASH_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32) (
     // AHB-Lite Slave Interface
     input               HCLK,
