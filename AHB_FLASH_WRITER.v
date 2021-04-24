@@ -49,7 +49,7 @@ module AHB_FLASH_WRITER (
     output  wire        fm_ce_n,
     input   wire [3:0]  fm_din,
     output  wire [3:0]  fm_dout,
-    output  wire        fm_douten
+    output  wire [3:0]  fm_douten
 );
 
     localparam  WE_REG_OFF  = 8'h00, 
@@ -57,7 +57,9 @@ module AHB_FLASH_WRITER (
                 SCK_REG_OFF = 8'h08,
                 OE_REG_OFF  = 8'h0c,
                 SO_REG_OFF  = 8'h10,
-                SI_REG_OFF  = 8'h14;
+                SI_REG_OFF  = 8'h14,
+                ID_REG_OFF  = 8'h18;
+                
                 
     `AHB_SLAVE_EPILOGUE()
 
@@ -76,13 +78,17 @@ module AHB_FLASH_WRITER (
     `AHB_REG(OE_REG, 4, OE_REG_OFF, 0, )  
     `AHB_REG(SO_REG, 4, SO_REG_OFF, 0, )
     
-    assign HRDATA = (last_HADDR == SI_REG_OFF) & rd_enable ? {28'h0, fm_din} : 32'h0; 
+    assign HRDATA = (last_HADDR == SI_REG_OFF) & rd_enable ? {28'h0, fm_din} : 
+                    (last_HADDR == ID_REG_OFF) & rd_enable ? {32'hABCD0001} : 
+                    32'h0; 
 
     assign  fm_sck      =   WE_REG  ?   SCK_REG :   fr_sck;
     assign  fm_ce_n     =   WE_REG  ?   SS_REG  :   fr_ce_n;
-    assign  fm_douten   =   WE_REG  ?   OE_REG  :   fr_douten;
+    assign  fm_douten   =   WE_REG  ?   OE_REG  :   {4{fr_douten}};
     assign  fm_dout     =   WE_REG  ?   SO_REG  :   fr_dout;
 
     assign fr_din       =   fm_din;
+
+    assign HREADY = 1;
 
 endmodule
