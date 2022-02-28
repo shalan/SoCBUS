@@ -24,22 +24,17 @@
 `default_nettype        none
 
 module AHB_FLASH_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32) (
-    // AHB-Lite Slave Interface
     input               HCLK,
     input               HRESETn,
-    input               HSEL,
-    input wire [31:0]   HADDR,
-    input wire [1:0]    HTRANS,
-    input wire          HWRITE,
-    input wire          HREADY,
-    output wire         HREADYOUT,
-    output wire [31:0]  HRDATA,
 
+    // AHB-Lite Slave Interface
+    `AHB_SLAVE_IFC(),
+    
     // External Interface to Quad I/O
     output              sck,
     output              ce_n,
-    input   wire[3:0]   din,
-    output      [3:0]   dout,
+    input   wire [3:0]  din,
+    output  wire [3:0]  dout,
     output  wire        douten     
 );
 

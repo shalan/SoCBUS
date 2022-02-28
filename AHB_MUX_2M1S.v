@@ -19,6 +19,10 @@
         A quick and rough AHB master multiplexor. Each master is given the 
         bus till it gives it up.
 */
+
+`timescale              1ns/1ps
+`default_nettype        none
+
 module AHB_MUX_2M1S #(parameter SZ=64) (
 	input HCLK,
 	input HRESETn,

@@ -78,8 +78,8 @@ module AHB_FLASH_WRITER (
     `AHB_REG(OE_REG, 4, OE_REG_OFF, 0, )  
     `AHB_REG(SO_REG, 4, SO_REG_OFF, 0, )
     
-    assign HRDATA = (last_HADDR == SI_REG_OFF) & rd_enable ? {28'h0, fm_din} : 
-                    (last_HADDR == ID_REG_OFF) & rd_enable ? {32'hABCD0001} : 
+    assign HRDATA = (last_HADDR[7:0] == SI_REG_OFF) & rd_enable ? {31'h0, fm_din[1]} : 
+                    (last_HADDR[7:0] == ID_REG_OFF) & rd_enable ? {32'hABCD0001} : 
                     32'h0; 
 
     assign  fm_sck      =   WE_REG  ?   SCK_REG :   fr_sck;

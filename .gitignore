@@ -54,3 +54,7 @@ dkms.conf
 #macOS
 .DS_Store
 SoCBUS.code-workspace
+
+#Verilog
+*.vcd
+*.vvp

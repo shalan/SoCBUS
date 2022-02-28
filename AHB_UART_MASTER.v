@@ -1,4 +1,48 @@
+/*
+	Copyright 2020 Mohamed Shalan
+	
+	Licensed under the Apache License, Version 2.0 (the "License"); 
+	you may not use this file except in compliance with the License. 
+	You may obtain a copy of the License at:
 
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software 
+	distributed under the License is distributed on an "AS IS" BASIS, 
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+	See the License for the specific language governing permissions and 
+	limitations under the License.
+*/
+
+/*
+  A UART that can act as AHB-Lite Master
+  The UART does not have a programmable prescaler. The prescaler is fixed 
+  and is provided as a module parameter. 
+    Baudrate = CLK_Freq/((Prescaler+1)*16)
+    Prescaler = CLK_Freq/(16*Baudrate) - 1
+  It supports 2 commands: 
+    Bus Read (A5) 
+      < 0xA5
+      < Address byte 0
+      < Address byte 1
+      < Address byte 2
+      < Address byte 3
+      > Data byte 0
+      > Data byte 1
+      > Data byte 2
+      > Data byte 3
+    
+    Bus Write (A3)
+      < 0xA3
+      < Address byte 0
+      < Address byte 1
+      < Address byte 2
+      < Address byte 3
+      < Data byte 0
+      < Data byte 1
+      < Data byte 2
+      < Data byte 3  
+*/
 
 `timescale              1ns/1ps
 `default_nettype        none
@@ -6,7 +50,7 @@
 `include "./include/ahb_util.vh"
 
 // 19.2K using 16MHz
-module AHB_UART_MASTER #(parameter PRESCALE=51) 
+module AHB_UART_MASTER #(parameter [15:0] PRESCALE=51) 
 (
     input wire          HCLK,
     input wire          HRESETn,
@@ -14,19 +58,19 @@ module AHB_UART_MASTER #(parameter PRESCALE=51)
     `AHB_MASTER_IFC(),
 
     input wire          RX,
-    output wire         TX,
+    output wire         TX
 
-    output [3:0] st
+    //output [3:0]        st
 );
 
     localparam 
-        ST_IDLE  = 4'd15, 
-        ST_RD    = 4'd1,
-        ST_WR    = 4'd2, 
-        ST_ADDR1 = 4'd3,
-        ST_ADDR2 = 4'd4, 
-        ST_ADDR3 = 4'd5,
-        ST_ADDR4 = 4'd6,
+        ST_IDLE   = 4'd15, 
+        ST_RD     = 4'd1,
+        ST_WR     = 4'd2, 
+        ST_ADDR1  = 4'd3,
+        ST_ADDR2  = 4'd4, 
+        ST_ADDR3  = 4'd5,
+        ST_ADDR4  = 4'd6,
         ST_WDATA1 = 4'd7,
         ST_WDATA2 = 4'd8,
         ST_WDATA3 = 4'd9,
@@ -41,7 +85,7 @@ module AHB_UART_MASTER #(parameter PRESCALE=51)
     wire        rx_done;
     wire        tx_done;
 
-    wire  [7:0]  tx_data;
+    wire [7:0]  tx_data;
     wire [7:0]  rx_data;
 
     reg         tx_start;
@@ -234,7 +278,7 @@ module AHB_UART_MASTER #(parameter PRESCALE=51)
         else
             tx_start <= 'b0;
         
-    assign st = rx_data[3:0];
+    //assign st = rx_data[3:0];
 
 endmodule
 
