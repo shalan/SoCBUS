@@ -34,7 +34,7 @@ module AHB_UART_MASTER_TB;
     always #5 HCLK = !HCLK;
 
     initial begin
-        $dumpfile("uart_ahb_mastet.vcd");
+        $dumpfile("uart_ahb_master_tb.vcd");
         $dumpvars;
         # 45_000_000 $finish;
     end
