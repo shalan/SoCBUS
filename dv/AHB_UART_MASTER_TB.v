@@ -1,3 +1,10 @@
+/*
+    A testbench for the AHB_UART_MASTER and AHB_FLASH_WRITER IPs
+    The testbench perform read and write operations from/to a 
+    QSPI flash memory.
+
+    The 
+*/
 
 `timescale              1ns/1ps
 `default_nettype        none
@@ -27,7 +34,7 @@ module AHB_UART_MASTER_TB;
     initial begin
         $dumpfile("uart_ahb_mastet.vcd");
         $dumpvars;
-        # 500_000 $finish;
+        # 45_000_000 $finish;
     end
 
     // RESET
@@ -48,7 +55,7 @@ module AHB_UART_MASTER_TB;
         TX = 1;
         #2000;
         FW_RD(24, data);
-        $finish;
+        //$finish;
         FW_ENABLE;
         SPI_OE(4'b0001);
         SPI_STATRT;
@@ -85,7 +92,6 @@ module AHB_UART_MASTER_TB;
         .HWRITE(HWRITE),
         .HTRANS(HTRANS),
         .HADDR(HADDR),
-
 
         .RX(TX),
         .TX(RX)
@@ -132,6 +138,7 @@ module AHB_UART_MASTER_TB;
     task UART_SEND (input [7:0] data);
         begin : task_body
             integer i;
+            #BITTIME;
             @(posedge HCLK);
             TX = 0;
             #BITTIME;
@@ -140,7 +147,7 @@ module AHB_UART_MASTER_TB;
                 #BITTIME;
             end
             TX = 1;
-            #BITTIME;
+            //#BITTIME;
         end
     endtask
 
@@ -148,7 +155,7 @@ module AHB_UART_MASTER_TB;
         begin : task_body
             integer i;
             @(negedge RX);
-            //#(BITTIME+(BITTIME/2));
+            #(BITTIME+(BITTIME/2));
             for(i=0; i<8; i=i+1) begin
                 data[i] = RX;
                 #BITTIME;
@@ -226,8 +233,8 @@ module AHB_UART_MASTER_TB;
             reg [31:0] word;
             for(i=7; i>=0; i=i-1) begin
                 FW_WR(SCK_OFF, 1);
-                //FW_RD(SI_OFF, word);
-                //data[i] = word[0];
+                FW_RD(SI_OFF, word);
+                data[i] = word[0];
                 FW_WR(SCK_OFF, 0);
             end
         end
@@ -250,7 +257,7 @@ module UART_MON #(parameter BITTIME=813.8)(input RX);
             end
             #BITTIME;
             //$write("%c", data);
-            $display("0x%X", data);
+            //$display("0x%X", data);
         end
     end
 
