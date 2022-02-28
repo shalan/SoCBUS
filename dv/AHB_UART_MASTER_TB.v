@@ -3,7 +3,9 @@
     The testbench perform read and write operations from/to a 
     QSPI flash memory.
 
-    The 
+    The testbench reads the device JEDEC ID and prints it out.
+    The provided tasks can be converted into PYTHON code to talk
+    to the flash memory when the IP is implemented ASIC/FPGA.
 */
 
 `timescale              1ns/1ps
@@ -22,8 +24,8 @@ module AHB_UART_MASTER_TB;
     reg  HRESETn;
     
     //APB Outputs
-     wire PREADY;
-     wire [31:0] PRDATA;
+    wire        PREADY;
+    wire [31:0] PRDATA;
 
     //Serial Port Signals
     wire        RX;  //Input from RS-232
@@ -71,14 +73,14 @@ module AHB_UART_MASTER_TB;
         $finish;
     end
 
-    wire HREADY, HWRITE;
-    wire [2:0] HSIZE;
-    wire [1:0] HTRANS;
+    wire        HREADY, HWRITE;
+    wire [2:0]  HSIZE;
+    wire [1:0]  HTRANS;
     wire [31:0] HADDR, HRDATA, HWDATA;
 
-    wire fm_ce_n,fm_sck;
-    wire [3:0] SIO; 
-    wire [3:0] fm_din, fm_dout,fm_douten;
+    wire        fm_ce_n,fm_sck;
+    wire [3:0]  SIO; 
+    wire [3:0]  fm_din, fm_dout,fm_douten;
 
     // baud rate = 1228800
     AHB_UART_MASTER #(.PRESCALE(4)) UM(
@@ -256,6 +258,7 @@ module UART_MON #(parameter BITTIME=813.8)(input RX);
                 #BITTIME;
             end
             #BITTIME;
+            // Enable one of the following lines to display the monitored data
             //$write("%c", data);
             //$display("0x%X", data);
         end
