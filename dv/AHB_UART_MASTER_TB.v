@@ -102,7 +102,7 @@ module AHB_UART_MASTER_TB;
         .HRESETn(HRESETn),
     
         // AHB-Lite Slave Interface
-        .HSEL(1),
+        .HSEL(1'b1),
         .HREADYOUT(HREADY),
         .HREADY(HREADY),
         .HWDATA(HWDATA),
