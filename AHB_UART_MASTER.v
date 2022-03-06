@@ -20,7 +20,9 @@
   and is provided as a module parameter. 
     Baudrate = CLK_Freq/((Prescaler+1)*16)
     Prescaler = CLK_Freq/(16*Baudrate) - 1
-  It supports 2 commands: 
+  Also, the UART supports only 8N1 frames
+
+  The UART as AHB master, supports 2 commands: 
     Bus Read (A5) 
       < 0xA5
       < Address byte 0

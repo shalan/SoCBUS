@@ -15,15 +15,16 @@
 	limitations under the License.
 */
 
-/*
-        A quick and rough AHB master multiplexor. Each master is given the 
-        bus till it gives it up.
-*/
-
 `timescale              1ns/1ps
 `default_nettype        none
 
-module AHB_MUX_2M1S #(parameter SZ=64) (
+/*
+        A quick and rough AHB master multiplexor. It supports 2 modes of operation:
+		(1) Each master is given the bus till it gives it up.
+		(2) Master 1 always gets the bus
+*/
+
+module AHB_MUX_2M1S #(parameter SZ=64, mode=2) (
 	input HCLK,
 	input HRESETn,
 	
@@ -66,14 +67,27 @@ module AHB_MUX_2M1S #(parameter SZ=64) (
 		if(!HRESETn) state <= S2;
 		else state <= nstate;
 
-	always @* begin
-		nstate = S0;
-		case (state)
-		  S0  : if(HTRANS_M1[1]) nstate = S1; else if(HTRANS_M2[1]) nstate = S2; else nstate = S0;
-		  S1  : if(!HTRANS_M1[1] & HREADY) nstate = S2; else nstate = S1;
-		  S2  : if(!HTRANS_M2[1] & HREADY) nstate = S1; else nstate = S2;
-		endcase
-	end
+	generate
+		if(mode == 1) begin
+			always @* begin
+				nstate = S0;
+				case (state)
+					S0  : if(HTRANS_M1[1]) nstate = S1; else if(HTRANS_M2[1]) nstate = S2; else nstate = S0;
+					S1  : if(!HTRANS_M1[1] & HREADY) nstate = S2; else nstate = S1;
+					S2  : if(!HTRANS_M2[1] & HREADY) nstate = S1; else nstate = S2;
+				endcase
+			end
+		end else begin
+			always @* begin
+				nstate = S0;
+				case (state)
+					S0  : if(HTRANS_M1[1]) nstate = S1; else if(HTRANS_M2[1]) nstate = S2; else nstate = S0;
+					S1  : if(!HTRANS_M1[1] & HREADY) nstate = S2; else nstate = S1;
+					S2  : if(HTRANS_M1[1] & HREADY) nstate = S1; else nstate = S2;
+				endcase
+			end
+		end
+	endgenerate
 
 	assign HREADY_M1 = (state == S0) ? 1'b1 : (state == S1) ? HREADY : ((state == S2) && (HTRANS_M2[1] == 1'b0)) ? HREADY : 1'b0;
 	assign HREADY_M2 = (state == S0) ? 1'b1 : (state == S2) ? HREADY : ((state == S1) && (HTRANS_M1[1] == 1'b0)) ? HREADY : 1'b0;

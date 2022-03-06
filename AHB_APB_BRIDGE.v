@@ -13,28 +13,31 @@
 	See the License for the specific language governing permissions and 
 	limitations under the License.
 */
+
 `timescale               1ns/1ps
 `default_nettype         none
 
 `include                "./include/ahb_util.vh"
 `include                "./include/apb_util.vh"
+
 /*
-    AHB lite to APB Bridge
+    A simple AHB-lite to APB Bridge
     SLOW_PCLK:
         0 : Same as HCLK (PCLKEN must be 1)
         1 : Slower than HCLK (PCLKEN is used as PCLK)
+            If PCLK is half the HCLK speed, toggle PCLKEN every HCLK cycle
 */
 module AHB_APB_BRIDGE #(parameter SLOW_PCLK = 1)(
-    input wire          HCLK,
-    input wire          HRESETn,
+    input   wire    HCLK,
+    input   wire    HRESETn,
     
     // AHB Slave Port
     `AHB_SLAVE_IFC(),
 
     // APB Master Port
-    output wire         PCLK,
-    output wire         PRESETn,
-    input wire          PCLKEN,
+    output  wire    PCLK,
+    output  wire    PRESETn,
+    input   wire    PCLKEN,
 
     `APB_MASTER_IFC
 );

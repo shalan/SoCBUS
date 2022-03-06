@@ -1,4 +1,19 @@
 /*
+	Copyright 2021 Mohamed Shalan
+	
+	Licensed under the Apache License, Version 2.0 (the "License"); 
+	you may not use this file except in compliance with the License. 
+	You may obtain a copy of the License at:
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software 
+	distributed under the License is distributed on an "AS IS" BASIS, 
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+	See the License for the specific language governing permissions and 
+	limitations under the License.
+*/
+/*
     A testbench for the AHB_UART_MASTER and AHB_FLASH_WRITER IPs
     The testbench perform read and write operations from/to a 
     QSPI flash memory.
@@ -28,8 +43,8 @@ module AHB_UART_MASTER_TB;
     wire [31:0] PRDATA;
 
     //Serial Port Signals
-    wire        RX;  //Input from RS-232
-    reg         TX;  //Output to RS-232
+    wire        RX;  // From UART to TB 
+    reg         TX;  // From TB to UART
 
     always #5 HCLK = !HCLK;
 
@@ -56,8 +71,12 @@ module AHB_UART_MASTER_TB;
     initial begin
         TX = 1;
         #2000;
+        
+        // READ the Flash Writer Magic Number
         FW_RD(24, data);
-        //$finish;
+        #200;
+
+        // READ The JEDEC ID
         FW_ENABLE;
         SPI_OE(4'b0001);
         SPI_STATRT;
@@ -69,7 +88,22 @@ module AHB_UART_MASTER_TB;
         SPI_BYTE_RD(data);
         $display("JEDEC Byte 2:%x", data);
         SPI_STOP;
-        #40000;
+        #400;
+
+        // Write few bytes
+        FLASH_WEN;
+        FLASH_PROT_UNLK;
+        FLASH_WEN;
+        #25_000;
+        FLASH_CHIP_ERASE;
+        #25_000;
+        FLASH_WEN;
+        FLASH_BYTE_PROG(24'h0, 8'hA);
+        FLASH_BYTE_PROG(24'h0, 8'hB);
+        FLASH_BYTE_PROG(24'h0, 8'hC);
+        FLASH_BYTE_PROG(24'h0, 8'hD);
+        FLASH_WDI;
+        
         $finish;
     end
 
@@ -130,8 +164,10 @@ module AHB_UART_MASTER_TB;
     assign SIO[3] = fm_douten[3] ? fm_dout[3] : 1'bz;
      
     sst26wf080b FLASH (.SCK(fm_sck),.SIO(SIO),.CEb(fm_ce_n));
+    defparam FLASH.I0.Tsce = 25_000;
 
-    UART_MON MON (.RX(TX));
+    // Enable this if you want to monitor the data being sent to the UART
+    //UART_MON MON (.RX(TX));
 
     // Baud rate 1228800
     // Bit time ~ 813.8ns
@@ -242,6 +278,57 @@ module AHB_UART_MASTER_TB;
         end
     endtask
 
+    task FLASH_WEN;
+        begin : task_body
+            SPI_OE(4'b0001);
+            SPI_STATRT;
+            SPI_BYTE_WR(8'h06); // write enable
+            SPI_STOP;
+        end
+    endtask
+
+    task FLASH_PROT_UNLK;
+        begin : task_body
+            SPI_OE(4'b0001);
+            SPI_STATRT;
+            SPI_BYTE_WR(8'h98); // global protection unlock
+            SPI_STOP;
+        end
+    endtask
+
+    task FLASH_WDI;
+        begin : task_body
+            SPI_OE(4'b0001);
+            SPI_STATRT;
+            SPI_BYTE_WR(8'h04);
+            SPI_STOP;
+        end
+    endtask
+    
+    task FLASH_CHIP_ERASE;
+        begin : task_body
+            SPI_OE(4'b0001);
+            SPI_STATRT;
+            SPI_BYTE_WR(8'hC7);
+            SPI_STOP;
+        end
+    endtask
+
+    // Page program
+    // Re-implement
+    task FLASH_BYTE_PROG(input[23:0] A, input[7:0] D);
+        begin : task_body
+            SPI_OE(4'b0001);
+            SPI_STATRT;
+            SPI_BYTE_WR(8'h02);
+            SPI_BYTE_WR(A[23:16]);
+            SPI_BYTE_WR(A[15:8]);
+            SPI_BYTE_WR(A[7:0]);
+            SPI_BYTE_WR(D);
+            SPI_STOP;
+        end
+    endtask
+
 endmodule
 
 
@@ -260,7 +347,7 @@ module UART_MON #(parameter BITTIME=813.8)(input RX);
             #BITTIME;
             // Enable one of the following lines to display the monitored data
             //$write("%c", data);
-            //$display("0x%X", data);
+            $display("0x%X", data);
         end
     end
 

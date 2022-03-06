@@ -58,3 +58,7 @@ SoCBUS.code-workspace
 #Verilog
 *.vcd
 *.vvp
+*.out
+
+#this repo
+tmp/

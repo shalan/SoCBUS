@@ -35,7 +35,7 @@ module AHB_FLASH_WRITER (
     input               HRESETn,
     
     // AHB-Lite Slave Interface
-    `AHB_SLAVE_IFC(),
+    `AHB_SLAVE_IFC,
     
     // FLASH Interface from the FR
     input  wire         fr_sck,
@@ -61,7 +61,7 @@ module AHB_FLASH_WRITER (
                 ID_REG_OFF  = 8'h18;
                 
                 
-    `AHB_SLAVE_EPILOGUE()
+    `AHB_SLAVE_EPILOGUE
 
     reg             WE_REG;
     wire WE_REG_sel = wr_enable & (last_HADDR[7:0] == WE_REG_OFF);
@@ -73,10 +73,10 @@ module AHB_FLASH_WRITER (
             WE_REG <= HWDATA[0];
     end
 
-    `AHB_REG(SS_REG, 1, SS_REG_OFF, 1, )  
-    `AHB_REG(SCK_REG, 1, SCK_REG_OFF, 0, )
-    `AHB_REG(OE_REG, 4, OE_REG_OFF, 0, )  
-    `AHB_REG(SO_REG, 4, SO_REG_OFF, 0, )
+    `AHB_REG(SS_REG, 1, SS_REG_OFF, 1)  
+    `AHB_REG(SCK_REG, 1, SCK_REG_OFF, 0)
+    `AHB_REG(OE_REG, 4, OE_REG_OFF, 0)  
+    `AHB_REG(SO_REG, 4, SO_REG_OFF, 0)
     
     assign HRDATA = (last_HADDR[7:0] == SI_REG_OFF) & rd_enable ? {31'h0, fm_din[1]} : 
                     (last_HADDR[7:0] == ID_REG_OFF) & rd_enable ? {32'hABCD0001} : 
@@ -89,6 +89,6 @@ module AHB_FLASH_WRITER (
 
     assign fr_din       =   fm_din;
 
-    assign HREADY = 1;
+    assign HREADYOUT = 1'b1;
 
 endmodule

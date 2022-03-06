@@ -1,3 +1,25 @@
+/*
+	Copyright 2020 Mohamed Shalan
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at:
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+/*
+    This file contains a set of helper macros for constructing APB bus
+    components.
+*/
+
+`define SLAVE_OFF_BITS  PADDR[7:3]
+
 `define APB_SLAVE_CONN(n)\
             .PCLK(PCLK),\
             .PRESETn(PRESETn),\
@@ -9,18 +31,6 @@
             .PRDATA(PRDATA_S[n]),\
             .PENABLE(PENABLE),\
             .PIRQ(PIRQ[n])
-
-/*
-`define APB_SLAVE_IFC\
-            input wire          PSEL,\
-            input wire [31:0]   PRDATA,\
-            input wire          PREADY,\
-            output wire [31:0]  PWDATA,\
-            output wire         PENABLE,\
-            output wire [31:0]  PADDR,\
-            output wire         PWRITE,\
-            input wire          PIRQ
-*/
 
 `define APB_SLAVE_IFC\
     input wire          PWRITE,\
@@ -50,7 +60,7 @@
 
 `define APB_REG(name, size, init, prefix)   \
         reg [size-1:0] name; \
-        wire ``name``_sel = PENABLE & PWRITE & PREADY & PSEL & (PADDR[7:3] == ``name``_OFF); \
+        wire ``name``_sel = PENABLE & PWRITE & PREADY & PSEL & (`SLAVE_OFF_BITS == ``name``_OFF); \
         always @(posedge PCLK or negedge PRESETn) \
             if (~PRESETn) \
                 ``name`` <= 'h``init``; \
@@ -63,7 +73,7 @@
 
 `define APB_ICR(offset, size)\
     reg [``size``-1:0] IC_REG;\
-    wire IC_REG_sel = (PENABLE & PWRITE & PREADY & PSEL & (PADDR[7:3] == ``offset``));\
+    wire IC_REG_sel = (PENABLE & PWRITE & PREADY & PSEL & (`SLAVE_OFF_BITS == ``offset``));\
     always @(posedge PCLK, negedge PRESETn)\
         if(!PRESETn)\
             IC_REG <= 'b0;\

@@ -14,15 +14,14 @@
 	See the License for the specific language governing permissions and 
 	limitations under the License.
 */
-/*
-    Refactored version of the FLASH Controller
-    Don't change the LINE_SIZE
-*/
-
 
 `timescale              1ns/1ps
 `default_nettype        none
 
+/*
+    Refactored version of the FLASH Controller
+    Don't change the LINE_SIZE
+*/
 module AHB_FLASH_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32) (
     input               HCLK,
     input               HRESETn,
