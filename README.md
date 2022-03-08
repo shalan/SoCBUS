@@ -13,3 +13,13 @@ A set of HDL modules and header files to accelerate the process of constructing 
 - [`/dv`](/dv) : Verification Testbenches and the associates include and Make files.
 - [`/include`](/include) : Utility include files for constructing AHB and APB based sub-systems.
 - [`/examples`](/examples) : Examples to demonstrate the usage of the AHB/APB nclude files. 
+
+## Status
+| IP  | Description | Status | Testbench |
+| ------------- | ------------- | ------------- | ------------- |
+| [AHB_SRAM](rtl/AHB_SRAM.v)  | AHB SRAM Controller | 98%  | [AHB_SRAM_TB.v](dv/AHB_SRAM_TB.v)
+| [AHB_UART_MASTER](rtl/AHB_UART_MASTER.v)  | A UART that can act as AHB master | 90%  | [AHB_UART_MASTER.v](dv/AHB_UART_MASTER_TB.v)
+| [AHB_FLASH_WRITER](rtl/AHB_FLASH_WRITER.v)  | AHB Slave used to program the QSI Flash | 95%  | [AHB_UART_MASTER.v](dv/AHB_UART_MASTER_TB.v)
+| [AHB_FLASH_CTRL](rtl/AHB_FLASH_CTRL.v)  | AHB QSI Flash Controller with a small DM cache (read only) | 95%  | [n/a]()
+| [AHB_APB_BRIDGE](rtl/AHB_APB_BRIDGE.v)  | AHB/APB Bridge | 95%  | [example_4_tb.v](dv/example_4_tb.v) 
+| [AHB_MUX_2M1S](rtl/AHB_MUX_2M1S.v)  | Dual mode AHB masters multiplexor | 95%  | [n/a]() 
