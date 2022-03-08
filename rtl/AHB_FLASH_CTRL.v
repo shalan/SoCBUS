@@ -18,6 +18,7 @@
 `timescale              1ns/1ps
 `default_nettype        none
 
+`include                "./include/ahb_util.vh"
 /*
     Refactored version of the FLASH Controller
     Don't change the LINE_SIZE
@@ -27,20 +28,23 @@ module AHB_FLASH_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32) (
     input               HRESETn,
 
     // AHB-Lite Slave Interface
-    `AHB_SLAVE_IFC(),
+    `AHB_SLAVE_IFC,
     
     // External Interface to Quad I/O
     output              sck,
     output              ce_n,
     input   wire [3:0]  din,
     output  wire [3:0]  dout,
-    output  wire        douten     
+    output  wire [3:0]  douten     
 );
 
     wire [23:0]             fr_addr, addr_0;
     wire                    fr_rd, rd_0;
     wire                    fr_done, done_0;
-    wire [LINE_SIZE-1: 0]   fr_line, line_0;      
+    wire [LINE_SIZE-1: 0]   fr_line, line_0;
+
+    wire                    oe;
+
 
     AHB_FLASH_CACHE_CTRL #( .LINE_SIZE(LINE_SIZE), 
                             .NUM_LINES(NUM_LINES) ) 
@@ -76,8 +80,10 @@ module AHB_FLASH_CTRL #(parameter LINE_SIZE=128, NUM_LINES=32) (
             .ce_n(ce_n),
             .din(din),
             .dout(dout),
-            .douten(douten)
+            .douten(oe)
     );
+
+    assign douten = {4{oe}};
 
 endmodule
 
