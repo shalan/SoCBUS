@@ -32,7 +32,7 @@ module AHB_APB_BRIDGE #(parameter SLOW_PCLK = 1)(
     input   wire    HRESETn,
     
     // AHB Slave Port
-    `AHB_SLAVE_IFC(),
+    `AHB_SLAVE_IFC,
 
     // APB Master Port
     output  wire    PCLK,
@@ -47,6 +47,10 @@ module AHB_APB_BRIDGE #(parameter SLOW_PCLK = 1)(
                     ST_SETUP    = 3'h2,
                     ST_ACCESS   = 3'h3;       
 
+    reg         PENABLE;
+    reg [31:0]  PADDR;
+    reg         PWRITE;
+              
     wire            Transfer;
     wire            ACRegEn;
 
@@ -71,7 +75,7 @@ module AHB_APB_BRIDGE #(parameter SLOW_PCLK = 1)(
     assign Transfer = HSEL & HREADY & HTRANS[1];
     assign ACRegEn  = HSEL & HREADY;
 
-    `AHB_SLAVE_EPILOGUE()
+    `AHB_SLAVE_EPILOGUE
   
     // State Machine
     always @ * 
