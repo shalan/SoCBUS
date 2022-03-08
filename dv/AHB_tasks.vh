@@ -47,3 +47,89 @@ task AHB_WRITE_WORD(input [31:0] ADDR, input [31:0] data);
 endtask
 
 
+task AHB_READ_HALF(input [31:0] ADDR, output [15:0] data);
+    begin : task_body
+        wait (HREADY == 1'b1);
+        @(posedge HCLK);
+        #1;
+        HTRANS <= 2'b10;
+        HWRITE <= 1'b0;
+        HADDR <= ADDR;
+        HSIZE <= 3'd1;
+        wait (HREADY == 1'b1);
+        @(posedge HCLK);
+        HTRANS <= 2'b00;
+        @(posedge HCLK);
+        data = HRDATA;
+    end
+endtask
+
+task AHB_WRITE_HALF(input [31:0] ADDR, input [15:0] data);
+    begin : task_body
+        //wait (HREADY == 1'b1);
+        @(posedge HCLK);
+        #1;
+        HTRANS <= 2'b10;
+        HWRITE <= 1'b1;
+        HADDR <= ADDR;
+        HSIZE <= 3'd1;
+        @(posedge HCLK);
+        HTRANS <= 0;
+        HWDATA <= data;
+    end
+endtask
+
+
+task AHB_READ_BYTE(input [31:0] ADDR, output [7:0] data);
+    begin : task_body
+        wait (HREADY == 1'b1);
+        @(posedge HCLK);
+        #1;
+        HTRANS <= 2'b10;
+        HWRITE <= 1'b0;
+        HADDR <= ADDR;
+        HSIZE <= 3'd0;
+        wait (HREADY == 1'b1);
+        @(posedge HCLK);
+        HTRANS <= 2'b00;
+        @(posedge HCLK);
+        data = HRDATA;
+    end
+endtask
+
+task AHB_WRITE_BYTE(input [31:0] ADDR, input [7:0] data);
+    begin : task_body
+        //wait (HREADY == 1'b1);
+        @(posedge HCLK);
+        #1;
+        HTRANS <= 2'b10;
+        HWRITE <= 1'b1;
+        HADDR <= ADDR;
+        HSIZE <= 3'd0;
+        @(posedge HCLK);
+        HTRANS <= 0;
+        HWDATA <= data;
+    end
+endtask
+
+task AHB_WRITE_READ_WORD(input [31:0] WADDR, input [31:0] RADDR, input [31:0] WDATA, output [31:0] RDATA);
+    begin : task_body
+        @(posedge HCLK);
+        #1;
+        HTRANS <= 2'b10;
+        HWRITE <= 1'b1;
+        HADDR <= WADDR;
+        HSIZE <= 3'd2;
+        @(posedge HCLK);
+        #1;
+        HTRANS <= 2'b10;
+        HWRITE <= 1'b0;
+        HADDR <= RADDR;
+        HSIZE <= 3'd2;
+        HWDATA <= WDATA;
+        @(posedge HCLK);
+        HTRANS <= 2'b00;
+        @(posedge HCLK);
+        RDATA = HRDATA;
+    end
+endtask
