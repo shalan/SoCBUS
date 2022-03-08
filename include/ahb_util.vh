@@ -90,6 +90,16 @@
         .HREADYOUT(``prefix``_HREADYOUT),\
         .HRDATA(``prefix``_HRDATA)
 
+`define AHB_SLAVE_INST_CONN_NP   \
+        .HSEL(HSEL),\
+        .HADDR( HADDR),\
+        .HTRANS(HTRANS),\
+        .HWRITE(HWRITE),\
+        .HREADY(HREADY),\
+        .HWDATA(HWDATA),\
+        .HSIZE( HSIZE),\
+        .HREADYOUT(HREADYOUT),\
+        .HRDATA(HRDATA)
 
 `define AHB_MASTER_IFC(prefix) \
     output wire [31:0]  HADDR,\

@@ -18,7 +18,7 @@
     components.
 */
 
-`define SLAVE_OFF_BITS  PADDR[7:3]
+//`define APB_SLAVE_OFF_BITS  PADDR[7:3]
 
 `define APB_SLAVE_CONN(n)\
             .PCLK(PCLK),\
@@ -43,12 +43,28 @@
     output wire         PIRQ
 
 `define APB_MASTER_IFC\
-            input wire  [31:0]  PRDATA,\
-            input wire          PREADY,\
-            output wire [31:0]  PWDATA,\
-            output reg          PENABLE,\
-            output reg  [31:0]  PADDR,\
-            output reg          PWRITE
+            input  [31:0]  PRDATA,\
+            input          PREADY,\
+            output [31:0]  PWDATA,\
+            output         PENABLE,\
+            output [31:0]  PADDR,\
+            output         PWRITE
+
+`define APB_MASTER_SIGNALS\
+    wire [31:0]  PRDATA;\
+    wire         PREADY;\
+    wire [31:0]  PWDATA;\
+    wire          PENABLE;\
+    wire [31:0]  PADDR;\
+    wire          PWRITE;
+
+`define APB_MASTER_CONN\
+        .PRDATA(PRDATA),\
+        .PREADY(PREADY),\
+        .PWDATA(PWDATA),\
+        .PENABLE(PENABLE),\
+        .PADDR(PADDR),\
+        .PWRITE(PWRITE)
 
 `define APB_MASTER_S_IFC\
             output wire [31:0]      PRDATA,\
@@ -58,22 +74,22 @@
             input wire [31:0]       PADDR,\
             input wire              PWRITE\
 
-`define APB_REG(name, size, init, prefix)   \
+`define APB_REG(name, size, init, offset)   \
         reg [size-1:0] name; \
-        wire ``name``_sel = PENABLE & PWRITE & PREADY & PSEL & (`SLAVE_OFF_BITS == ``name``_OFF); \
+        wire ``name``_sel = PENABLE & PWRITE & PREADY & PSEL & (`APB_SLAVE_OFF_BITS == offset); \
         always @(posedge PCLK or negedge PRESETn) \
             if (~PRESETn) \
-                ``name`` <= 'h``init``; \
+                ``name`` <= ``init``; \
             else if (``name``_sel) \
-                ``name`` <= ``prefix``PWDATA[``size``-1:0];
+                ``name`` <= PWDATA[``size``-1:0];
 
 `define APB_REG_FIELD(reg_name, field_name, from, to)\
-    wire    reg_name``field_name``  =   reg_name[``to``:``from``];
+    wire    reg_name_``field_name``  =   reg_name[``to``:``from``];
 
 
 `define APB_ICR(offset, size)\
     reg [``size``-1:0] IC_REG;\
-    wire IC_REG_sel = (PENABLE & PWRITE & PREADY & PSEL & (`SLAVE_OFF_BITS == ``offset``));\
+    wire IC_REG_sel = (PENABLE & PWRITE & PREADY & PSEL & (`APB_SLAVE_OFF_BITS == ``offset``));\
     always @(posedge PCLK, negedge PRESETn)\
         if(!PRESETn)\
             IC_REG <= 'b0;\
@@ -82,12 +98,17 @@
         else if(IC_REG != 'h0)\
             IC_REG <= 'b0;\
 
+`define APB_PRDATA_MUX  assign PRDATA =
+
+`define APB_SLAVE_PRDATA(offset, register)       (`APB_SLAVE_OFF_BITS == offset) ? register :
+
 `define APB_DEC_MUX_16(base_hex, rdata_default)\
     wire [15:0] PREADY_S;\
     wire [15:0] PSEL_S;\
     wire [31:0] PRDATA_S [15:0];\
-    wire PSEL = (PADDR[31:24] == 8'h``base_hex``);\
+    wire PSEL = HSEL;\
     wire [3:0] DEC_BITS = PADDR [23:20];\
+    wire [15:0] PIRQ;\
     wire [15:0] dec  = { \
                             (DEC_BITS  == 4'd15),\
                             (DEC_BITS  == 4'd14),\
@@ -138,11 +159,11 @@
                         dec[12] ? PRDATA_S[12] :\
                         dec[13] ? PRDATA_S[13] :\
                         dec[14] ? PRDATA_S[14] :\
-                        dec[15] ? PRDATA_S[15] : 32'h``rdata_default``;
+                        dec[15] ? PRDATA_S[15] : rdata_default;
 
 `define SLAVE_NOT_USED(num, rdata_default)\
     assign  PREADY_S[``num``] = 1'b1;\
-    assign  PRDATA_S[``num``] = 32'h``rdata_default``;\
+    assign  PRDATA_S[``num``] = ``rdata_default``;\
     assign  PIRQ[``num``] = 'b0;
 
 

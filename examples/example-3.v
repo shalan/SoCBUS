@@ -14,7 +14,8 @@
 	limitations under the License.
 */
 /*
-    Example AHB-lite sub-syetem with a bus matrix, 4 slaves and a slave AHB port.
+    Example 3:
+        AHB-lite sub-syetem with a bus matrix, 4 slaves and a slave AHB port.
 */
 `default_nettype         none
 
@@ -24,7 +25,7 @@ module AHB_SYS (
     input wire HCLK,
     input wire HRESETn,
 
-    `AHB_MASTER_BUS_IFC( )
+    `AHB_MASTER_BUS_IFC()
 );
 
     `AHB_SLAVE_SIGNALS(S0)

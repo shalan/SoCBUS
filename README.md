@@ -10,7 +10,6 @@ A set of HDL modules and header files to accelerate the process of constructing 
 - [`FIFO.v`](FIFO.v) : A parametrized FIFO.
 
 ## Repo Structure
-- `/dv` : Verification Testbenches and the associates include and Make files.
-- `/include` : Utility include files for constructing AHB and APB based sub-systems.
-- `/examples` : Examples to demonstrate the usage of the AHB/APB nclude files. 
-
+- [`/dv`](/dv) : Verification Testbenches and the associates include and Make files.
+- [`/include`](/include) : Utility include files for constructing AHB and APB based sub-systems.
+- [`/examples`](/examples) : Examples to demonstrate the usage of the AHB/APB nclude files. 
