@@ -23,11 +23,11 @@ task AHB_READ_WORD(input [31:0] ADDR, output [31:0] data);
         HWRITE <= 1'b0;
         HADDR <= ADDR;
         HSIZE <= 3'd2;
-        wait (HREADY == 1'b1);
         @(posedge HCLK);
+        #1;
         HTRANS <= 2'b00;
-        @(posedge HCLK);
-        data = HRDATA;
+        wait (HREADY == 1'b1);
+        @(posedge HCLK) data = HRDATA;
     end
 endtask
 
