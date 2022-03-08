@@ -23,3 +23,7 @@ sim_apb: ../examples/example-4.v ../rtl/AHB_APB_BRIDGE.v
 sim_sram: AHB_SRAM_TB.v ../rtl/AHB_SRAM.v sram32.v
 	iverilog -I ../ -Wall -o ahb_sram.vvp $?
 	vvp ahb_sram.vvp
+
+sim_flash_ctrl: AHB_FLASH_CTRL_TB.v ../rtl/AHB_FLASH_CTRL.v sst26wf080b.v
+	iverilog -I ../ -Wall -o ahb_flash_ctrl.vvp $?
+	vvp ahb_flash_ctrl.vvp
