@@ -21,7 +21,7 @@
 /*
         A quick and rough AHB master multiplexor. It supports 2 modes of operation:
 		(1) Each master is given the bus till it gives it up.
-		(2) Master 1 always gets the bus
+		(2) Master 0 always gets the bus if it is free.
 */
 
 module AHB_MUX_2M1S #(parameter SZ=64, mode=2) (
@@ -29,22 +29,22 @@ module AHB_MUX_2M1S #(parameter SZ=64, mode=2) (
 	input HRESETn,
 	
     // Port 1
+	input  wire [31:0] 	    HADDR_M0,
+	input  wire [1:0] 	    HTRANS_M0,
+	input  wire       	    HWRITE_M0,
+	input  wire [2:0] 	    HSIZE_M0,
+	input  wire [SZ-1:0]	HWDATA_M0,
+	output wire             HREADY_M0,
+	output wire [SZ-1:0]    HRDATA_M0,
+	
+    // Port 2
 	input  wire [31:0] 	    HADDR_M1,
 	input  wire [1:0] 	    HTRANS_M1,
 	input  wire       	    HWRITE_M1,
 	input  wire [2:0] 	    HSIZE_M1,
 	input  wire [SZ-1:0]	HWDATA_M1,
-	output wire             HREADY_M1,
-	output wire [SZ-1:0]    HRDATA_M1,
-	
-    // Port 2
-	input  wire [31:0] 	    HADDR_M2,
-	input  wire [1:0] 	    HTRANS_M2,
-	input  wire       	    HWRITE_M2,
-	input  wire [2:0] 	    HSIZE_M2,
-	input  wire [SZ-1:0]	HWDATA_M2,
-	output wire		        HREADY_M2,
-	output wire [SZ-1:0]	HRDATA_M2,
+	output wire		        HREADY_M1,
+	output wire [SZ-1:0]	HRDATA_M1,
 	
     // Master Port
 	input  wire		        HREADY,
@@ -72,62 +72,62 @@ module AHB_MUX_2M1S #(parameter SZ=64, mode=2) (
 			always @* begin
 				nstate = S0;
 				case (state)
-					S0  : if(HTRANS_M1[1]) nstate = S1; else if(HTRANS_M2[1]) nstate = S2; else nstate = S0;
-					S1  : if(!HTRANS_M1[1] & HREADY) nstate = S2; else nstate = S1;
-					S2  : if(!HTRANS_M2[1] & HREADY) nstate = S1; else nstate = S2;
+					S0  : if(HTRANS_M0[1]) nstate = S1; else if(HTRANS_M1[1]) nstate = S2; else nstate = S0;
+					S1  : if(!HTRANS_M0[1] & HREADY) nstate = S2; else nstate = S1;
+					S2  : if(!HTRANS_M1[1] & HREADY) nstate = S1; else nstate = S2;
 				endcase
 			end
 		end else begin
 			always @* begin
 				nstate = S0;
 				case (state)
-					S0  : if(HTRANS_M1[1]) nstate = S1; else if(HTRANS_M2[1]) nstate = S2; else nstate = S0;
-					S1  : if(!HTRANS_M1[1] & HREADY) nstate = S2; else nstate = S1;
-					S2  : if(HTRANS_M1[1] & HREADY) nstate = S1; else nstate = S2;
+					S0  : if(HTRANS_M0[1]) nstate = S1; else if(HTRANS_M1[1]) nstate = S2; else nstate = S0;
+					S1  : if(!HTRANS_M0[1] & HREADY) nstate = S2; else nstate = S1;
+					S2  : if(HTRANS_M0[1] & HREADY) nstate = S1; else nstate = S2;
 				endcase
 			end
 		end
 	endgenerate
 
-	assign HREADY_M1 = (state == S0) ? 1'b1 : (state == S1) ? HREADY : ((state == S2) && (HTRANS_M2[1] == 1'b0)) ? HREADY : 1'b0;
-	assign HREADY_M2 = (state == S0) ? 1'b1 : (state == S2) ? HREADY : ((state == S1) && (HTRANS_M1[1] == 1'b0)) ? HREADY : 1'b0;
+	assign HREADY_M0 = (state == S0) ? 1'b1 : (state == S1) ? HREADY : ((state == S2) && (HTRANS_M1[1] == 1'b0)) ? HREADY : 1'b0;
+	assign HREADY_M1 = (state == S0) ? 1'b1 : (state == S2) ? HREADY : ((state == S1) && (HTRANS_M0[1] == 1'b0)) ? HREADY : 1'b0;
 	
+	assign HRDATA_M0 = HRDATA;
 	assign HRDATA_M1 = HRDATA;
-	assign HRDATA_M2 = HRDATA;
 	
 	reg [1:0] htrans;
 	always @*
 		case (state)
-			S0:     htrans = (HTRANS_M1[1]) ? HTRANS_M1 : 2'b00;
-			S1:     htrans = (HTRANS_M1[1]) ? HTRANS_M1 : HTRANS_M2;
-			S2:     htrans = (HTRANS_M2[1]) ? HTRANS_M2 : HTRANS_M1;
+			S0:     htrans = (HTRANS_M0[1]) ? HTRANS_M0 : 2'b00;
+			S1:     htrans = (HTRANS_M0[1]) ? HTRANS_M0 : HTRANS_M1;
+			S2:     htrans = (HTRANS_M1[1]) ? HTRANS_M1 : HTRANS_M0;
             default:htrans = 2'b00;
 		endcase
 	
 	reg [31:0] haddr;
 	always @*
 		case (state)
-			S0:     haddr = (HTRANS_M1[1]) ? HADDR_M1 : 32'b0;
-			S1:     haddr = (HTRANS_M1[1]) ? HADDR_M1 : HADDR_M2;
-			S2:     haddr = (HTRANS_M2[1]) ? HADDR_M2 : HADDR_M1;
+			S0:     haddr = (HTRANS_M0[1]) ? HADDR_M0 : 32'b0;
+			S1:     haddr = (HTRANS_M0[1]) ? HADDR_M0 : HADDR_M1;
+			S2:     haddr = (HTRANS_M1[1]) ? HADDR_M1 : HADDR_M0;
             default:haddr = 32'b0;
 		endcase
 	
 	reg [0:0] hwrite;
 	always @*
 		case (state)
-			S0:     hwrite = (HTRANS_M1[1]) ? HWRITE_M1 : 1'b0;
-			S1:     hwrite = (HTRANS_M1[1]) ? HWRITE_M1 : HWRITE_M2;
-			S2:     hwrite = (HTRANS_M2[1]) ? HWRITE_M2 : HWRITE_M1;
+			S0:     hwrite = (HTRANS_M0[1]) ? HWRITE_M0 : 1'b0;
+			S1:     hwrite = (HTRANS_M0[1]) ? HWRITE_M0 : HWRITE_M1;
+			S2:     hwrite = (HTRANS_M1[1]) ? HWRITE_M1 : HWRITE_M0;
             default:hwrite = 1'b0;
 		endcase
 		
 	reg [2:0] hsize;
 	always @*
 		case (state)
-			S0:     hsize = (HTRANS_M1[1]) ? HSIZE_M1 : 3'b0;
-			S1:     hsize = (HTRANS_M1[1]) ? HSIZE_M1 : HSIZE_M2;
-			S2:     hsize = (HTRANS_M2[1]) ? HSIZE_M2 : HSIZE_M1;
+			S0:     hsize = (HTRANS_M0[1]) ? HSIZE_M0 : 3'b0;
+			S1:     hsize = (HTRANS_M0[1]) ? HSIZE_M0 : HSIZE_M1;
+			S2:     hsize = (HTRANS_M1[1]) ? HSIZE_M1 : HSIZE_M0;
             default:hsize = 3'b0;
 		endcase
 			
@@ -135,8 +135,8 @@ module AHB_MUX_2M1S #(parameter SZ=64, mode=2) (
 	always @*
 		case (state)
 			S0:     hwdata = 'b0;
-			S1:     hwdata = HWDATA_M1;
-			S2:     hwdata = HWDATA_M2;
+			S1:     hwdata = HWDATA_M0;
+			S2:     hwdata = HWDATA_M1;
             default:hwdata = 'b0;
 		endcase
 			
