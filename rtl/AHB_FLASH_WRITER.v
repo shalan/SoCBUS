@@ -16,9 +16,10 @@
 */
 
 `timescale              1ns/1ps
-`default_nettype        none
+`default_nettype        wire
 
-`include                "./include/ahb_util.vh"
+`include                "ahbl_util.vh"
+
 /*
     A bit bangging flash writer with AHB slave interface
     Registers:
@@ -30,16 +31,26 @@
         14: SI data in (read, 4bits)
 */
 
-module AHB_FLASH_WRITER (
+module AHB_FLASH_WRITER_QSPI (
     input               HCLK,
     input               HRESETn,
     
     // AHB-Lite Slave Interface
-    `AHB_SLAVE_IFC,
+    //`AHB_SLAVE_IFC,
+    // AHB-Lite Slave Interface
+    input wire          HSEL,
+    input wire [31:0]   HADDR,
+    input wire [1:0]    HTRANS,
+    input wire          HWRITE,
+    input wire          HREADY,
+    input wire [31:0]   HWDATA,
+    input wire [2:0]    HSIZE,
+    output wire         HREADYOUT,
+    output wire [31:0]  HRDATA,
     
     // FLASH Interface from the FR
     input  wire         fr_sck,
-    inout  wire         fr_ce_n,
+    input  wire         fr_ce_n,
     output wire [3:0]   fr_din,
     input  wire [3:0]   fr_dout,
     input  wire         fr_douten,
@@ -73,10 +84,10 @@ module AHB_FLASH_WRITER (
             WE_REG <= HWDATA[0];
     end
 
-    `AHB_REG(SS_REG, 1, SS_REG_OFF, 1)  
-    `AHB_REG(SCK_REG, 1, SCK_REG_OFF, 0)
-    `AHB_REG(OE_REG, 4, OE_REG_OFF, 0)  
-    `AHB_REG(SO_REG, 4, SO_REG_OFF, 0)
+    `_AHB_REG_(SS_REG, 1, SS_REG_OFF, 1, SS_REG_SEL)  
+    `_AHB_REG_(SCK_REG, 1, SCK_REG_OFF, 0, SCK_REG_SEL)
+    `_AHB_REG_(OE_REG, 4, OE_REG_OFF, 0, OE_REG_SEL)  
+    `_AHB_REG_(SO_REG, 4, SO_REG_OFF, 0, SO_REG_SEL)
     
     assign HRDATA = (last_HADDR[7:0] == SI_REG_OFF) & rd_enable ? {31'h0, fm_din[1]} : 
                     (last_HADDR[7:0] == ID_REG_OFF) & rd_enable ? {32'hABCD0001} : 
