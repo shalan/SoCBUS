@@ -84,10 +84,10 @@ module AHB_FLASH_WRITER_QSPI (
             WE_REG <= HWDATA[0];
     end
 
-    `_AHB_REG_(SS_REG, 1, SS_REG_OFF, 1)  
-    `_AHB_REG_(SCK_REG, 1, SCK_REG_OFF, 0)
-    `_AHB_REG_(OE_REG, 4, OE_REG_OFF, 0)  
-    `_AHB_REG_(SO_REG, 4, SO_REG_OFF, 0)
+    `_AHB_REG_(SS_REG, 1, SS_REG_OFF, 1, SS_REG_SEL)  
+    `_AHB_REG_(SCK_REG, 1, SCK_REG_OFF, 0, SCK_REG_SEL)
+    `_AHB_REG_(OE_REG, 4, OE_REG_OFF, 0, OE_REG_SEL)  
+    `_AHB_REG_(SO_REG, 4, SO_REG_OFF, 0, SO_REG_SEL)
     
     assign HRDATA = (last_HADDR[7:0] == SI_REG_OFF) & rd_enable ? {31'h0, fm_din[1]} : 
                     (last_HADDR[7:0] == ID_REG_OFF) & rd_enable ? {32'hABCD0001} : 
